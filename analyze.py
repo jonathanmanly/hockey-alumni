@@ -4,6 +4,7 @@ import copy
 import time
 import csv
 import pickle
+import pandas as pd
 
 
 # This assumes that hockey.py has already been run to cache the analysis data
@@ -51,6 +52,8 @@ for team in allnhl:
         alumni_by_current[team][team2]=[]
 
 
+
+
 # Iterate through the players.  Load the player's name under the NHL team for each former team for the player
 for p in players:
     if len(p[3])>0:
@@ -63,7 +66,7 @@ for p in players:
 
 #teams with alumni
 
-teams_with_alumni = []
+teams_with_alumni = {}
 
 
 for t in allnhl:
@@ -71,29 +74,82 @@ for t in allnhl:
     for o in allnhl:
         if len(alumni_by_current[t][o])>0:
             i+=1
-    teams_with_alumni.append([t,i])
-
-
-
-teams_with_alumni = sorted(teams_with_alumni,key=lambda x:x[1])
+    teams_with_alumni[t]=i
 
 
 
 
-a_report = []
 
-for a in alumni:
-    a_report.append([ a, len(alumni[a])])
+num_alumni_players = []
 
-
-a_report = sorted(a_report,key=lambda x: x[1])
+for a in allnhl:
+    num_alumni_players.append([ a, len(alumni[a]),teams_with_alumni[a]])
 
 
-for a in a_report:
-    print a
+num_alumni_players = sorted(num_alumni_players,key=lambda x: x[1])
+
+num_alumni = pd.DataFrame(num_alumni_players)
 
 
-team_report = []
+num_alumni.columns = ['Team','Num_total_alumni','Num_opposing_teams_alumni']
+
+
+plt.barh(np.arange(len(num_alumni)),num_alumni['Num_total_alumni'])
+plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'])
+plt.xlabel('Alumni Players')
+plt.title('Alumni Players by Current Team')
+
+plt.show()
+
+
+plt.barh(np.arange(len(num_alumni)),num_alumni['Num_opposing_teams_alumni'])
+plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'])
+plt.xlabel('Teams with Alumni Players')
+plt.title('Teams with Alumni Player by Current Team')
+
+plt.show()
+
+
+#https://pythonspot.com/en/matplotlib-bar-chart/
+
+fig, ax = plt.subplots()
+fig.set_size_inches(18.5, 10.5)
+
+index = np.arange(len(num_alumni))
+bar_width = 0.35
+opacity = 1.
+plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
+legend = ax.legend(loc=2, shadow=True)
+
+rects1 = plt.barh(index, num_alumni['Num_total_alumni'], bar_width,
+                 alpha=opacity,
+                 color='b',
+                 label='Players')
+
+rects2 = plt.barh(index + bar_width, num_alumni['Num_opposing_teams_alumni'], bar_width,
+                 alpha=opacity,
+                 color='y',
+                 label='Teams')
+
+
+#plt.ylabel('Scores')
+#ax.tick_params(direction='up', pad=15)
+plt.title('NHL Alumni')
+plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'],rotation=10,va='center')
+plt.xlabel('Teams with Alumni Players')
+plt.legend(loc='lower right')
+
+plt.show()
+
+#fig.savefig('test2png.png', dpi=100)
+
+
+
+
+
+
+
+
 
 
 
@@ -107,4 +163,4 @@ def playersAtLarge(team,alumni_by_current):
 
 playersAtLarge('Buffalo Sabres',alumni_by_current)
 
-
+playersAtLarge('Ottawa Senators',alumni_by_current)
