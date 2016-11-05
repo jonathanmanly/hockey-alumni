@@ -13,14 +13,13 @@ def check():
 
 
 
-
-
 try:
     with open(r"hockey_memcache.pickle", "rb") as input_file:
         memcache = pickle.load(input_file)
 except:
     memcache={}
 
+# Uncomment the below if you want to run with all new data from Wikipedia
 #memcache={}
 
 
@@ -67,19 +66,18 @@ for easturl in rosterurls:
         i+=1
 
 
+# Clean out some non-player links that make it through this far
+
 finalroster = []
 for r in roster:
     if 'Articles' not in r[2] and 'Upload' not in r[2] and 'project' not in r[2]:
         finalroster.append(r)
 
 
-
 roster=finalroster
 
 
-
-
-
+# Save out the roster to local drive
 
 myfile = open("roster.csv", 'wb')
 wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
@@ -92,7 +90,6 @@ for row in roster:
 errors = []
 playerTeamHistory=[]
 
-#print "going to get individual player data"
 
 for r in roster[:1000]:
     p=r[0]+r[1]
@@ -101,7 +98,6 @@ for r in roster[:1000]:
         page = copy.deepcopy(memcache[thisone])
         s = BeautifulSoup(page,"html.parser").get_text()
     else:
-        print "requesting",thisone
         time.sleep(1)
         try:
             resp = urllib2.urlopen(thisone)
@@ -115,7 +111,7 @@ for r in roster[:1000]:
     startpos = s.find("Former teams")
     endpos = s[startpos:].find("\n\n")
     playerTeamHistory.append([r[0],r[1],r[2],s[startpos:startpos+endpos].split("\n")[1:]])
-    #print "done on ", r
+
 
 
 
@@ -126,11 +122,11 @@ with open(r"hockey_memcache.pickle", "wb") as output_file:
 
 
 
-
+# Run through the accumulated player/team history and ensure only NHL teams are retained
+# Also update for some of the relevant recent team name changes
 
 for i in range(len(playerTeamHistory)):
     p = playerTeamHistory[i]
-    #print "before",p
     if p[3] is not None and len(p[3])>0:
         current = p[1].replace('_',' ')
         goodlist=[]
@@ -144,25 +140,12 @@ for i in range(len(playerTeamHistory)):
             elif q=='Mighty Ducks of Anaheim':
                 goodlist.append('Anaheim Ducks')
         playerTeamHistory[i]=[p[0],p[1],p[2],goodlist]
-    #print "after",playerTeamHistory[i]
-    #print "-----"
-    #print "  "
 
 
 
+#check()
 
-
-
-check()
-
-
-
-'''
-myfile = open("players.csv", 'wb')
-wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-for row in playerTeamHistory:
-    wr.writerow(row)
-'''
+# Save images of the lists for analyses
 
 with open(r"players.pickle", "wb") as output_file:
     pickle.dump(playerTeamHistory, output_file)

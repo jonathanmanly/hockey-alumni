@@ -6,16 +6,10 @@ import csv
 import pickle
 
 
-
+# This assumes that hockey.py has already been run to cache the analysis data
 
 players=[]
 
-'''
-with open('players.csv', 'rb') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for row in reader:
-        players.append(row)
-'''
 
 allnhl=[]
 
@@ -29,10 +23,7 @@ with open(r"players.pickle", "rb") as input_file:
 
 
 
-
-
-
-
+# Create a dictionary where you can look up current NHL team by player name
 
 currentTeams = {}
 
@@ -40,6 +31,7 @@ for p in players:
     currentTeams[p[2]]=p[1]
 
 
+# For each team, create a list of active alumni playing on other teams
 
 alumni={}
 
@@ -51,29 +43,22 @@ for team in allnhl:
 alumni_by_current={}
 
 
+# Initialize an empty data structure
+
 for team in allnhl:
     alumni_by_current[team]={}
     for team2 in allnhl:
         alumni_by_current[team][team2]=[]
 
 
-
-print "add distinct team count"
-
-
+# Iterate through the players.  Load the player's name under the NHL team for each former team for the player
 for p in players:
     if len(p[3])>0:
         for t in p[3]:
             thisTeam = t.replace('_',' ')
             alumni[thisTeam].append(p[2])
-            print p[1],thisTeam,p[2]
             alumni_by_current[thisTeam][p[1].replace('_',' ')].append(p[2])
 
-
-
-
-print "Sabres alumni at large"
-print alumni_by_current['Buffalo Sabres']
 
 
 #teams with alumni
@@ -110,5 +95,16 @@ for a in a_report:
 
 team_report = []
 
+
+
+def playersAtLarge(team,alumni_by_current):
+    allTeams =sorted(list(allnhl))
+    for t in allTeams:
+        if len(alumni_by_current[team][t])>0:
+            print t,":",alumni_by_current[team][t]
+
+
+
+playersAtLarge('Buffalo Sabres',alumni_by_current)
 
 
