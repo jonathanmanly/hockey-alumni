@@ -23,6 +23,13 @@ with open(r"players.pickle", "rb") as input_file:
     players = pickle.load(input_file)
 
 
+divisions={}
+
+for p in players:
+    if p[1] not in divisions:
+        divisions[p[1]]=p[0]
+
+
 
 # Create a dictionary where you can look up current NHL team by player name
 
@@ -93,8 +100,10 @@ num_alumni = pd.DataFrame(num_alumni_players)
 
 num_alumni.columns = ['Team','Num_total_alumni','Num_opposing_teams_alumni']
 
+'''
 
 plt.barh(np.arange(len(num_alumni)),num_alumni['Num_total_alumni'])
+
 plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'])
 plt.xlabel('Alumni Players')
 plt.title('Alumni Players by Current Team')
@@ -103,14 +112,18 @@ plt.show()
 
 
 plt.barh(np.arange(len(num_alumni)),num_alumni['Num_opposing_teams_alumni'])
+plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
 plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'])
 plt.xlabel('Teams with Alumni Players')
 plt.title('Teams with Alumni Player by Current Team')
 
 plt.show()
 
-
+'''
 #https://pythonspot.com/en/matplotlib-bar-chart/
+
+
+num_alumni.sort_values('Num_total_alumni',inplace=True)
 
 fig, ax = plt.subplots()
 fig.set_size_inches(18.5, 10.5)
@@ -144,10 +157,56 @@ plt.show()
 #fig.savefig('test2png.png', dpi=100)
 
 
+fig, ax = plt.subplots()
+fig.set_size_inches(18.5, 10.5)
+
+index = np.arange(len(num_alumni))
+bar_width = 0.7
+opacity = 1.
+plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
+legend = ax.legend(loc=2, shadow=True)
+
+rects1 = plt.barh(index, num_alumni['Num_total_alumni'], bar_width,
+                 alpha=opacity,
+                 color='b',
+                 label='Players')
 
 
+#plt.ylabel('Scores')
+#ax.tick_params(direction='up', pad=15)
+plt.title('NHL Alumni')
+plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'],rotation=10,va='center')
+plt.xlabel('Teams with Alumni Players')
+plt.legend(loc='lower right')
+
+plt.show()
 
 
+num_alumni.sort_values('Num_opposing_teams_alumni',inplace=True)
+
+fig, ax = plt.subplots()
+fig.set_size_inches(18.5, 10.5)
+
+index = np.arange(len(num_alumni))
+bar_width = 0.7
+opacity = 1.
+plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
+legend = ax.legend(loc=2, shadow=True)
+
+rects1 = plt.barh(index, num_alumni['Num_opposing_teams_alumni'], bar_width,
+                 alpha=opacity,
+                 color='b',
+                 label='Players')
+
+
+#plt.ylabel('Scores')
+#ax.tick_params(direction='up', pad=15)
+plt.title('NHL Alumni')
+plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'],rotation=10,va='center')
+plt.xlabel('Teams with Alumni Players')
+plt.legend(loc='lower right')
+
+plt.show()
 
 
 
