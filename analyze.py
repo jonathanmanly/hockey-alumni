@@ -100,6 +100,7 @@ num_alumni = pd.DataFrame(num_alumni_players)
 
 num_alumni.columns = ['Team','Num_total_alumni','Num_opposing_teams_alumni']
 
+
 '''
 
 plt.barh(np.arange(len(num_alumni)),num_alumni['Num_total_alumni'])
@@ -223,3 +224,36 @@ def playersAtLarge(team,alumni_by_current):
 playersAtLarge('Buffalo Sabres',alumni_by_current)
 
 playersAtLarge('Ottawa Senators',alumni_by_current)
+
+
+teamsindex = np.array(sorted(list(allnhl)))
+for t in teamsindex:
+    t=t.replace("_"," ")
+
+
+
+df1 = pd.DataFrame(index=teamsindex)
+
+for t in teamsindex:
+    df1[t]=0
+
+
+for p in players:
+    if len(p[3])>0:
+        for t in p[3]:
+            z=df1[p[1].replace("_"," ")][t]
+            df1=df1.set_value(p[1].replace("_"," "),t,1+z)
+
+
+a=np.matrix(df1)
+plt.imshow(a, cmap='hot', interpolation='nearest')
+plt.show()
+
+
+print "something is wrong with winnipeg?"
+
+
+
+
+
+
