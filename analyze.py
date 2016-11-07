@@ -286,6 +286,8 @@ print "weighted avg based on the schedule"
 print "look at how many matchups have it one way"
 
 
+games_with={}
+
 for h in allnhl:
     z=0
     q=0
@@ -298,7 +300,14 @@ for h in allnhl:
             #print home,vis,bi
             z=z+bi
             q=q+al
-    print h,z,q
+    games_with[h]=[z,q]
+
+
+
+
+
+for g in games_with:
+    print g,games_with[g][0]/82.,games_with[g][1]/82.
 
 
 
