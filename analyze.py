@@ -286,7 +286,7 @@ print "weighted avg based on the schedule"
 print "look at how many matchups have it one way"
 
 
-games_with={}
+games_with=[]
 
 for h in allnhl:
     z=0
@@ -300,16 +300,80 @@ for h in allnhl:
             #print home,vis,bi
             z=z+bi
             q=q+al
-    games_with[h]=[z,q]
+    games_with.append([h,z,q])
 
 
 
+games_with_df = pd.DataFrame(games_with)
+games_with_df.columns = ['Team','Games_Bidirectional','Games_Alumni']
 
 
-for g in games_with:
-    print g,games_with[g][0]/82.,games_with[g][1]/82.
+
+#print games_with_df
 
 
+
+games_with_df.sort_values('Games_Bidirectional',inplace=True)
+
+fig, ax = plt.subplots()
+fig.set_size_inches(18.5, 10.5)
+
+index = np.arange(len(games_with_df))
+bar_width = 0.7
+opacity = 1.
+#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
+legend = ax.legend(loc=2, shadow=True)
+
+rects1 = plt.barh(index, games_with_df['Games_Bidirectional'], bar_width,
+                 alpha=opacity,
+                 color='y',
+                 label='Players')
+
+
+#plt.ylabel('Scores')
+#ax.tick_params(direction='up', pad=15)
+plt.title('NHL Alumni')
+#plt.xticks(np.arange(82))
+axes = plt.gca()
+axes.set_xlim([0,82])
+plt.yticks(np.arange(len(games_with_df)), np.array(games_with_df['Team']),rotation=10,va='center')
+plt.xlabel('Games with Alumni Players')
+plt.legend(loc='lower right')
+
+plt.show()
+
+
+
+#-----------------------------
+
+games_with_df.sort_values('Games_Alumni',inplace=True)
+
+fig, ax = plt.subplots()
+fig.set_size_inches(18.5, 10.5)
+
+index = np.arange(len(games_with_df))
+bar_width = .7
+opacity = 1.
+#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
+legend = ax.legend(loc=2, shadow=True)
+
+rects1 = plt.barh(index, games_with_df['Games_Alumni'], bar_width,
+                 alpha=opacity,
+                 color='y',
+                 label='Players')
+
+
+#plt.ylabel('Scores')
+#ax.tick_params(direction='up', pad=15)
+plt.title('NHL Alumni')
+#plt.xticks(np.arange(82))
+axes = plt.gca()
+axes.set_xlim([0,82])
+plt.yticks(np.arange(len(games_with_df)), np.array(games_with_df['Team']),rotation=10,va='center')
+plt.xlabel('Games with Alumni Players')
+plt.legend(loc='lower right')
+
+plt.show()
 
 
 
