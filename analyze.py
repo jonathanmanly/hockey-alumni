@@ -9,6 +9,9 @@ import pandas as pd
 
 # This assumes that hockey.py has already been run to cache the analysis data
 
+matchups = pd.read_csv('nhl_schedule.csv')
+#from Hockey-Reference.com
+
 players=[]
 
 
@@ -26,8 +29,9 @@ with open(r"players.pickle", "rb") as input_file:
 divisions={}
 
 for p in players:
-    if p[1] not in divisions:
-        divisions[p[1]]=p[0]
+    if p[0] not in divisions:
+        divisions[p[0]]=set([])
+    divisions[p[0]].add(p[1].replace("_"," "))
 
 
 
@@ -249,18 +253,58 @@ for p in players:
 
 
 a=df1
-column_labels = teamsindex
-row_labels = teamsindex
-fig, ax = plt.subplots()
-fig=plt.pcolor(a,cmap=plt.cm.Reds)
-ax.set_yticks(np.arange(a.shape[0])+0.5,)
-ax.set_xticks(np.arange(a.shape[1])+0.5)
-ax.set_xticklabels(row_labels,rotation=90)
-ax.set_yticklabels(column_labels)
-plt.subplots_adjust(left=.3, right=.98, top=.98, bottom=.3)
 
-plt.show()
-plt.close()
+
+def makeHeatMap(matrix,teamsindex):
+    column_labels = teamsindex
+    row_labels = teamsindex
+    fig, ax = plt.subplots()
+    fig=plt.pcolor(matrix,cmap=plt.cm.Reds)
+    ax.set_yticks(np.arange(matrix.shape[0])+0.5,)
+    ax.set_xticks(np.arange(matrix.shape[1])+0.5)
+    ax.set_xticklabels(row_labels,rotation=90)
+    ax.set_yticklabels(column_labels)
+    plt.subplots_adjust(left=.3, right=.98, top=.98, bottom=.3)
+    plt.show()
+    plt.close()
+
+
 
 
 print "do this for each of the conferences and divisions... whats the odds youll play an alumni?"
+
+
+for d in divisions:
+    teamsToMap = sorted(list(divisions[d]))
+    thisDiv = df1.ix[teamsToMap][teamsToMap]
+    makeHeatMap(thisDiv,teamsToMap)
+
+
+
+print "weighted avg based on the schedule"
+
+print "look at how many matchups have it one way"
+
+
+for h in allnhl:
+    z=0
+    q=0
+    for i in range(len(matchups)):
+        vis = matchups.ix[i]['Visitor']
+        home = matchups.ix[i]['Home']
+        if home==h or vis==h:
+            bi=1*((df1.ix[home][vis]+df1.ix[vis][home])>0)
+            al = 1*((df1.ix[home][vis])>0)
+            #print home,vis,bi
+            z=z+bi
+            q=q+al
+    print h,z,q
+
+
+
+
+
+
+
+
+
