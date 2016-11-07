@@ -133,11 +133,11 @@ for i in range(len(playerTeamHistory)):
         for q in p[3]:
             if current != q and q in allnhl:
                 goodlist.append(q)
-            elif q=='Atlanta Thrashers':
+            elif q=='Atlanta Thrashers' and current != 'Winnipeg Jets':
                 goodlist.append('Winnipeg Jets')
-            elif q=='Phoenix Coyotes':
+            elif q=='Phoenix Coyotes' and current != 'Arizona Coyotes':
                 goodlist.append('Arizona Coyotes')
-            elif q=='Mighty Ducks of Anaheim':
+            elif q=='Mighty Ducks of Anaheim' and current !='Anaheim Ducks':
                 goodlist.append('Anaheim Ducks')
         playerTeamHistory[i]=[p[0],p[1],p[2],goodlist]
 

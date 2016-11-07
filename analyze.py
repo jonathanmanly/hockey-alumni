@@ -132,7 +132,7 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(num_alumni))
 bar_width = 0.35
 opacity = 1.
-plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
+#plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, num_alumni['Num_total_alumni'], bar_width,
@@ -154,6 +154,7 @@ plt.xlabel('Teams with Alumni Players')
 plt.legend(loc='lower right')
 
 plt.show()
+#plt.clf()
 
 #fig.savefig('test2png.png', dpi=100)
 
@@ -164,7 +165,7 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(num_alumni))
 bar_width = 0.7
 opacity = 1.
-plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
+#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, num_alumni['Num_total_alumni'], bar_width,
@@ -181,6 +182,8 @@ plt.xlabel('Teams with Alumni Players')
 plt.legend(loc='lower right')
 
 plt.show()
+#plt.clf()
+
 
 
 num_alumni.sort_values('Num_opposing_teams_alumni',inplace=True)
@@ -191,12 +194,12 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(num_alumni))
 bar_width = 0.7
 opacity = 1.
-plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
+#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, num_alumni['Num_opposing_teams_alumni'], bar_width,
                  alpha=opacity,
-                 color='b',
+                 color='y',
                  label='Players')
 
 
@@ -221,7 +224,7 @@ def playersAtLarge(team,alumni_by_current):
 
 
 
-playersAtLarge('Buffalo Sabres',alumni_by_current)
+playersAtLarge('Winnipeg Jets',alumni_by_current)
 
 playersAtLarge('Ottawa Senators',alumni_by_current)
 
@@ -245,15 +248,19 @@ for p in players:
             df1=df1.set_value(p[1].replace("_"," "),t,1+z)
 
 
-a=np.matrix(df1)
-plt.imshow(a, cmap='hot', interpolation='nearest')
+a=df1
+column_labels = teamsindex
+row_labels = teamsindex
+fig, ax = plt.subplots()
+fig=plt.pcolor(a,cmap=plt.cm.Reds)
+ax.set_yticks(np.arange(a.shape[0])+0.5,)
+ax.set_xticks(np.arange(a.shape[1])+0.5)
+ax.set_xticklabels(row_labels,rotation=90)
+ax.set_yticklabels(column_labels)
+plt.subplots_adjust(left=.3, right=.98, top=.98, bottom=.3)
+
 plt.show()
+plt.close()
 
 
-print "something is wrong with winnipeg?"
-
-
-
-
-
-
+print "do this for each of the conferences and divisions... whats the odds youll play an alumni?"
