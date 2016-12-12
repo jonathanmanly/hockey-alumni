@@ -11,8 +11,6 @@ def check():
     for p in playerTeamHistory:
         print p
 
-
-
 try:
     with open(r"hockey_memcache.pickle", "rb") as input_file:
         memcache = pickle.load(input_file)
@@ -20,6 +18,7 @@ except:
     memcache={}
 
 # Uncomment the below if you want to run with all new data from Wikipedia
+
 #memcache={}
 
 
@@ -87,6 +86,7 @@ for row in roster:
 
 
 #Cleanup
+
 errors = []
 playerTeamHistory=[]
 

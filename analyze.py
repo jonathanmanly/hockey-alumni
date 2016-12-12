@@ -5,7 +5,8 @@ import time
 import csv
 import pickle
 import pandas as pd
-
+import itertools
+from matplotlib_venn import venn3, venn3_circles
 
 # This assumes that hockey.py has already been run to cache the analysis data
 
@@ -13,8 +14,6 @@ matchups = pd.read_csv('nhl_schedule.csv')
 #from Hockey-Reference.com
 
 players=[]
-
-
 allnhl=[]
 
 
@@ -105,30 +104,10 @@ num_alumni = pd.DataFrame(num_alumni_players)
 num_alumni.columns = ['Team','Num_total_alumni','Num_opposing_teams_alumni']
 
 
-'''
-
-plt.barh(np.arange(len(num_alumni)),num_alumni['Num_total_alumni'])
-
-plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'])
-plt.xlabel('Alumni Players')
-plt.title('Alumni Players by Current Team')
-
-plt.show()
-
-
-plt.barh(np.arange(len(num_alumni)),num_alumni['Num_opposing_teams_alumni'])
-plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
-plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'])
-plt.xlabel('Teams with Alumni Players')
-plt.title('Teams with Alumni Player by Current Team')
-
-plt.show()
-
-'''
-#https://pythonspot.com/en/matplotlib-bar-chart/
-
-
 num_alumni.sort_values('Num_total_alumni',inplace=True)
+num_alumni.reset_index(inplace=True)
+
+# Output graphs
 
 fig, ax = plt.subplots()
 fig.set_size_inches(18.5, 10.5)
@@ -136,7 +115,6 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(num_alumni))
 bar_width = 0.35
 opacity = 1.
-#plt.subplots_adjust(left=2., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, num_alumni['Num_total_alumni'], bar_width,
@@ -149,18 +127,13 @@ rects2 = plt.barh(index + bar_width, num_alumni['Num_opposing_teams_alumni'], ba
                  color='y',
                  label='Teams')
 
-
-#plt.ylabel('Scores')
-#ax.tick_params(direction='up', pad=15)
-plt.title('NHL Alumni')
+plt.title('NHL Alumni, Players and Distinct Teams')
 plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'],rotation=10,va='center')
 plt.xlabel('Teams with Alumni Players')
 plt.legend(loc='lower right')
 
-plt.show()
-#plt.clf()
-
-#fig.savefig('test2png.png', dpi=100)
+fig.savefig('active_alum_by_team_players_and_teams.png')
+plt.close()
 
 
 fig, ax = plt.subplots()
@@ -169,7 +142,6 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(num_alumni))
 bar_width = 0.7
 opacity = 1.
-#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, num_alumni['Num_total_alumni'], bar_width,
@@ -178,19 +150,18 @@ rects1 = plt.barh(index, num_alumni['Num_total_alumni'], bar_width,
                  label='Players')
 
 
-#plt.ylabel('Scores')
-#ax.tick_params(direction='up', pad=15)
-plt.title('NHL Alumni')
+plt.title('NHL Alumni, Players')
 plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'],rotation=10,va='center')
 plt.xlabel('Teams with Alumni Players')
 plt.legend(loc='lower right')
 
-plt.show()
-#plt.clf()
+fig.savefig('active_alum_by_team_players.png')
+plt.close()
 
 
 
 num_alumni.sort_values('Num_opposing_teams_alumni',inplace=True)
+num_alumni.reset_index(inplace=True)
 
 fig, ax = plt.subplots()
 fig.set_size_inches(18.5, 10.5)
@@ -198,7 +169,6 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(num_alumni))
 bar_width = 0.7
 opacity = 1.
-#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, num_alumni['Num_opposing_teams_alumni'], bar_width,
@@ -207,30 +177,14 @@ rects1 = plt.barh(index, num_alumni['Num_opposing_teams_alumni'], bar_width,
                  label='Players')
 
 
-#plt.ylabel('Scores')
-#ax.tick_params(direction='up', pad=15)
-plt.title('NHL Alumni')
+plt.title('NHL Alumni, Distinct Teams')
 plt.yticks(np.arange(len(num_alumni)), num_alumni['Team'],rotation=10,va='center')
 plt.xlabel('Teams with Alumni Players')
 plt.legend(loc='lower right')
 
-plt.show()
+fig.savefig('active_alum_by_team_distinct_teams.png')
+plt.close()
 
-
-
-
-
-def playersAtLarge(team,alumni_by_current):
-    allTeams =sorted(list(allnhl))
-    for t in allTeams:
-        if len(alumni_by_current[team][t])>0:
-            print t,":",alumni_by_current[team][t]
-
-
-
-playersAtLarge('Winnipeg Jets',alumni_by_current)
-
-playersAtLarge('Ottawa Senators',alumni_by_current)
 
 
 teamsindex = np.array(sorted(list(allnhl)))
@@ -255,7 +209,7 @@ for p in players:
 a=df1
 
 
-def makeHeatMap(matrix,teamsindex):
+def makeHeatMap(matrix,teamsindex,divname):
     column_labels = teamsindex
     row_labels = teamsindex
     fig, ax = plt.subplots()
@@ -264,27 +218,21 @@ def makeHeatMap(matrix,teamsindex):
     ax.set_xticks(np.arange(matrix.shape[1])+0.5)
     ax.set_xticklabels(row_labels,rotation=90)
     ax.set_yticklabels(column_labels)
-    plt.subplots_adjust(left=.3, right=.98, top=.98, bottom=.3)
-    plt.show()
+    plt.title(divname)
+    plt.subplots_adjust(left=.3, right=.98, top=.9, bottom=.3)
+    fig.figure.savefig('heat_map_'+divname+'.png')
     plt.close()
 
-
-
-
-print "do this for each of the conferences and divisions... whats the odds youll play an alumni?"
 
 
 for d in divisions:
     teamsToMap = sorted(list(divisions[d]))
     thisDiv = df1.ix[teamsToMap][teamsToMap]
-    makeHeatMap(thisDiv,teamsToMap)
+    makeHeatMap(thisDiv,teamsToMap,d)
 
 
 
-print "weighted avg based on the schedule"
-
-print "look at how many matchups have it one way"
-
+# Track the effective proportion of games with an alumni
 
 games_with=[]
 
@@ -314,6 +262,7 @@ games_with_df.columns = ['Team','Games_Bidirectional','Games_Alumni']
 
 
 games_with_df.sort_values('Games_Bidirectional',inplace=True)
+games_with_df.reset_index(inplace=True)
 
 fig, ax = plt.subplots()
 fig.set_size_inches(18.5, 10.5)
@@ -321,7 +270,6 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(games_with_df))
 bar_width = 0.7
 opacity = 1.
-#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, games_with_df['Games_Bidirectional'], bar_width,
@@ -330,23 +278,22 @@ rects1 = plt.barh(index, games_with_df['Games_Bidirectional'], bar_width,
                  label='Players')
 
 
-#plt.ylabel('Scores')
-#ax.tick_params(direction='up', pad=15)
-plt.title('NHL Alumni')
-#plt.xticks(np.arange(82))
+plt.title('NHL Alumni Regular Season Proportion, Bidirectional')
 axes = plt.gca()
 axes.set_xlim([0,82])
 plt.yticks(np.arange(len(games_with_df)), np.array(games_with_df['Team']),rotation=10,va='center')
 plt.xlabel('Games with Alumni Players')
 plt.legend(loc='lower right')
 
-plt.show()
+plt.savefig("schedule_weighted_proportion_bidirectional.png")
+plt.close()
 
 
 
 #-----------------------------
 
 games_with_df.sort_values('Games_Alumni',inplace=True)
+games_with_df.reset_index(inplace=True)
 
 fig, ax = plt.subplots()
 fig.set_size_inches(18.5, 10.5)
@@ -354,7 +301,6 @@ fig.set_size_inches(18.5, 10.5)
 index = np.arange(len(games_with_df))
 bar_width = .7
 opacity = 1.
-#plt.subplots_adjust(left=1., right=0.9, top=0.9, bottom=0.1)
 legend = ax.legend(loc=2, shadow=True)
 
 rects1 = plt.barh(index, games_with_df['Games_Alumni'], bar_width,
@@ -363,20 +309,101 @@ rects1 = plt.barh(index, games_with_df['Games_Alumni'], bar_width,
                  label='Players')
 
 
-#plt.ylabel('Scores')
-#ax.tick_params(direction='up', pad=15)
-plt.title('NHL Alumni')
-#plt.xticks(np.arange(82))
+plt.title('NHL Alumni Regular Season Proportion, Unidirectional')
 axes = plt.gca()
 axes.set_xlim([0,82])
 plt.yticks(np.arange(len(games_with_df)), np.array(games_with_df['Team']),rotation=10,va='center')
 plt.xlabel('Games with Alumni Players')
 plt.legend(loc='lower right')
 
-plt.show()
+plt.savefig("schedule_weighted_proportion_unidirectional.png")
+plt.close()
 
 
 
+def playersAtLarge(team,alumni_by_current):
+    allTeams =sorted(list(allnhl))
+    for t in allTeams:
+        if len(alumni_by_current[team][t])>0:
+            print t,":",alumni_by_current[team][t]
+
+
+
+
+playersAtLarge('Buffalo Sabres',alumni_by_current)
+
+
+team_to_team_sets = {}
+
+for team1 in alumni_by_current.keys():
+    destinations = []
+    for team2 in alumni_by_current[team1]:
+        if len(alumni_by_current[team1][team2])>0:
+            destinations.append(team2)
+    team_to_team_sets[team1]=set(destinations)
+
+
+
+
+for k in range(2,3):
+    print k
+    groups = itertools.combinations(list(allnhl),k)
+    for g in groups:
+        total_cover=set([])
+        for t in g:
+            total_cover=total_cover.union(team_to_team_sets[t])
+            cover_and_orig = set(g).union(total_cover)
+            if len(cover_and_orig)>=28 :#and 'Buffalo Sabres' in g
+                print "WINNER",g
+                print set(allnhl).difference(total_cover)
+                print
+
+
+
+
+#Make venn chart for Sabres and Pens
+set1 = set(allnhl)
+set2 = set(team_to_team_sets['Buffalo Sabres'])
+set2.add("Buffalo Sabres")
+set2.add("Dallas Stars")
+set3 = set(team_to_team_sets['Pittsburgh Penguins'])
+set3.add("Pittsburgh Penguins")
+subset_list = [set3,set2,set1]
+
+
+
+
+
+v = venn3(subsets=subset_list, set_labels = ('NHL', 'Buffalo Sabres', 'Pittsburgh Penguins'))
+for i in range(len(v.set_labels)):
+    text = v.set_labels[i]
+    if i==0:
+        text.set_text("")
+    elif i==1:
+        print text
+        text.set_position((text.get_position()[0]+.25,.1))
+    elif i==2:
+        print text
+        text.set_position((text.get_position()[0]-.85,0))
+
+
+for i in range(len(v.subset_labels)):
+    text = v.subset_labels[i]
+    if i==3:
+        text.set_position((text.get_position()[0],text.get_position()[1]-.1))
+    elif i==4:
+        text.set_position((text.get_position()[0]-.1,text.get_position()[1]))
+    elif i==5:
+        text.set_position((text.get_position()[0]+.05,text.get_position()[1]))
+
+v.patches[3].set_color('grey')
+v.patches[4].set_color('black')
+v.patches[5].set_color('blue')
+v.patches[6].set_color('green')
+
+plt.title("NHL Teams with Sabres or Penguins")
+plt.savefig("venn_sabres_pens_nhl.png")
+plt.close()
 
 
 
